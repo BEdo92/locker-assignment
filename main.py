@@ -54,16 +54,24 @@ def add_locker(num):
                     used_lockers.append(UsedSection(i, section.section))
                 break
 
+            # searching for the biggest gap between used lockers
+            # include the start and end of the section in the list of used lockers
+            section_used.append(section.start)
+            section_used.append(section.end)
+            section_used.sort()
             for i in range(len(section_used) - 1):
-                gap = section_used[i + 1] - section_used[i]
+                gap = section_used[i + 1] - section_used[i] - 1 
                 if gap > biggest_size:
                     biggest_size = gap
                     biggest_start = section_used[i]
-
+                    
+            # if the biggest gap is big enough, it assignes lockers in the middle of the gap
             if biggest_size > num:
-                start_idx = ((biggest_start + biggest_size + biggest_start) // 2) - num // 2
+                #start_idx = ((biggest_start + biggest_size + biggest_start) // 2) - num // 2
+                start_idx = (biggest_start + biggest_size // 2) - num // 2
                 for i in range(start_idx, start_idx + num):
                     used_lockers.append(UsedSection(i, section.section))
+            # if the biggest gap is not big enough, it assigns lockers to the remaining places
             else:
                 available_lockers = [i for i in range(section.start, section.end + 1)
                                     if UsedSection(i, section.section) not in used_lockers]
@@ -86,13 +94,15 @@ def free_locker(locker_num):
 def print_lockers():
     all_sections_sorted = sorted(locker_sections, key=lambda s: s.start)
     used_locker_nums = [s.locker for s in used_lockers]
-    for section in all_sections_sorted:
-        for locker in range(section.start, section.end + 1):
+    for i in range(len(all_sections_sorted)):
+        if i > 0 and all_sections_sorted[i].section[0] != all_sections_sorted[i - 1].section[0]:
+            print()
+        for locker in range(all_sections_sorted[i].start, all_sections_sorted[i].end + 1):
             if locker in used_locker_nums:
                 print(str(locker).center(4, '|'), end=' ')
             else:
                 print(str(locker).center(4, '-'), end=' ')
-        print()
+    print()
 
 if __name__ == '__main__':
     total_guests = 0
